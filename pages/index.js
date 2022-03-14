@@ -17,7 +17,7 @@ export default function Home() {
   const [values, setValues] = useState([])
   const [order, setOrder] = useState({})
   const [sign, setSign] = useState("")
-  const { accounts, provider } = useW3Pocket()
+  const { accounts, provider, connected } = useW3Pocket()
   const account = accounts[0]
   const web3 = new Web3(provider)
   // const a1155 = "0xb462512ad8f6b795b551749Bf6d25Dd382D9bd64"
@@ -139,7 +139,7 @@ export default function Home() {
   return (
     <div className={styles.container}>
       <W3PocketConnectButton />
-      {sign 
+      {account ? sign 
         ? <button onClick={fillOrder}>
             fillOrder
           </button>
@@ -149,7 +149,7 @@ export default function Home() {
             </button>
           : <button onClick={handleSign}>
               簽名上架
-            </button>
+            </button> : ""
       }
       <div>
         <input type="text" placeholder="erc1155 address" value={address1155} onChange={(e) => setAddress1155(e.target.value)} />{' '}
