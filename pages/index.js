@@ -12,7 +12,7 @@ import fABI from "../public/fABI.json"
 
 export default function Home() {
   const [isApproved, setIsApproved] = useState(false)
-  const [address1155, setAddress1155] = useState("")
+  const [address1155, setAddress1155] = useState("0x5ca26b7a7096ebbe9981aa8ceb526ed39b93e1ba")
   const [ids, setIds] = useState([])
   const [values, setValues] = useState([])
   const [order, setOrder] = useState({})
@@ -22,6 +22,7 @@ export default function Home() {
   const web3 = new Web3(provider)
   // const a1155 = "0xb462512ad8f6b795b551749Bf6d25Dd382D9bd64"
   // const a1155 = "0xcb14eca89ad5d6af203f19c68bdeced6a4d00655"
+  // const a1155 = "0x5ca26b7a7096ebbe9981aa8ceb526ed39b93e1ba" // new
   const contract = address1155 && new web3.eth.Contract(ABI, address1155)
 
   useEffect(() => {
