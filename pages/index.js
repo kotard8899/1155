@@ -9,6 +9,7 @@ import { Zero, One, AddressZero } from "@ethersproject/constants"
 import Web3 from "web3"
 import ABI from "../public/ABI.json"
 import fABI from "../public/fABI.json"
+import axios from "axios"
 
 export default function Home() {
   const [isApproved, setIsApproved] = useState(false)
@@ -17,6 +18,9 @@ export default function Home() {
   const [values, setValues] = useState([])
   const [order, setOrder] = useState({})
   const [sign, setSign] = useState("")
+  const [feeRecipientAddress, setFeeRecipientAddress] = useState("0x7ebb6000feA30E11683A896cB745A5D51DdEEc6F")
+  const [makerFee, setMakerFee] = useState(2.5)
+  const [price, setPrice] = useState(0.1)
   const { accounts, provider, connected } = useW3Pocket()
   const account = accounts[0]
   const web3 = new Web3(provider)
@@ -56,7 +60,7 @@ export default function Home() {
     const { orderHashUtils, assetDataUtils, signatureUtils } = await import(
       "@0x/order-utils"
     )
-    const { ecSignOrderAsync } = signatureUtils
+    const { ecSignOrderAsync, convertECSignatureToSignatureHex } = signatureUtils
     const _ids = ids.map(e => BigNumber.from(e))
     const _values = values.map(e => BigNumber.from(e))
 
@@ -78,17 +82,17 @@ export default function Home() {
     const order = {
       makerAssetAmount: "1",
       makerAssetData: erc1155Data,
-      takerAssetAmount: "100000000000000000",
+      takerAssetAmount: (web3.utils.toWei(price.toString(), "ether") * (1 - makerFee / 100)).toString(),
       takerAssetData: erc20Data,
       makerAddress: account,
       exchangeAddress: process.env.EXCHANGE,
       salt,
       expirationTimeSeconds,
-      feeRecipientAddress: AddressZero,
+      feeRecipientAddress: feeRecipientAddress,
       takerAddress: AddressZero,
       senderAddress: AddressZero,
       makerFee: "0",
-      takerFee: "0",
+      takerFee: (web3.utils.toWei(price.toString(), "ether") * (makerFee / 100)).toString(),
     }
 
     const zeroXProvider = await import("@0x/subproviders").then(
@@ -100,6 +104,15 @@ export default function Home() {
     )
     setSign(signature)
     setOrder(order)
+    // const so = order
+    // so.signature = signature
+
+    // const cso = convertECSignatureToSignatureHex(so)
+    // const r = await axios.post("https://cors-anywhere.herokuapp.com/https://api.rinkeby.dex.lootex.dev/v2/orders", {
+    //   order: cso,
+    //   chainId: 4
+    // })
+    // console.log(r)
   }
 
   const fillOrder = () => {
@@ -115,7 +128,7 @@ export default function Home() {
     ]
     fContract.methods
       .marketBuyOrdersWithEth(...args)
-      .send({ from: account, value: web3.utils.toWei("0.1", "ether") })
+      .send({ from: account, value: web3.utils.toWei(price.toString(), "ether") })
       .on("transactionHash", (hash) => {
         console.log(hash)
       })
@@ -162,6 +175,18 @@ export default function Home() {
       <div>
         <input type="text" placeholder="value,value,value" value={values} onChange={handleValues} />{' '}
         values: [{values.map(e => e + ",")}]
+      </div>
+      <div>
+        <input type="text" placeholder="賣價" value={price} onChange={(e) => setFeeRecipientAddress(e.target.value)} />{' '}
+        price: {price}ether
+      </div>
+      <div>
+        <input type="text" placeholder="feeRecipientAddress" value={feeRecipientAddress} onChange={(e) => setFeeRecipientAddress(e.target.value)} />{' '}
+        feeRecipientAddress: {feeRecipientAddress}
+      </div>
+      <div>
+        <input type="number" placeholder="makerFee" value={makerFee} onChange={(e) => setMakerFee(e.target.value)} />{' '}
+        makerFee: {makerFee}%
       </div>
     </div>
   )

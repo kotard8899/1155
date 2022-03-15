@@ -15,6 +15,7 @@
     "@ethersproject/bignumber": "^5.5.0",
     "@ethersproject/constants": "^5.5.0",
     "assert": "^2.0.0",
+    "axios": "^0.26.1",
     "next": "^10.0.9",
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
