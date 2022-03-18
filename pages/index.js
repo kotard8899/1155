@@ -20,9 +20,9 @@ export default function Home() {
   const [order, setOrder] = useState({})
   const [sign, setSign] = useState("")
   const [feeRecipientAddress, setFeeRecipientAddress] = useState("0x7ebb6000feA30E11683A896cB745A5D51DdEEc6F")
-  const [makerFee, setMakerFee] = useState(2.5)
+  const [makerFee, setMakerFee] = useState(0)
   const [price, setPrice] = useState(0.1)
-  const [proxy, setProxy] = useState("0x18c01ce06af2ac1fbab1fd02698ff37c8c038f2f")
+  const [proxy, setProxy] = useState("")
   const [erc20, setErc20] = useState("")
   const [is721, setIs721] = useState(false)
   const { accounts, provider, connected } = useW3Pocket()
@@ -34,8 +34,8 @@ export default function Home() {
   const contract = address1155 && is721 ? new web3.eth.Contract(ABI721, address1155) : new web3.eth.Contract(ABI, address1155)
 
   useEffect(() => {
-    account && address1155 && handleAsync()
-  }, [account, address1155])
+    account && proxy && address1155 && handleAsync()
+  }, [account, address1155, proxy])
 
   const handleAsync = async () => {
     const isApproved = await contract.methods.isApprovedForAll(account, proxy).call()

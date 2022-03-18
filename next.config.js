@@ -12,7 +12,7 @@ const nextConfig = {
     ERC20PROXY: "0x9f79bdda4d68d663efbfa8298fa9c13f675481b3",
     ERC721PROXY: "0x5eac5ecf3eff38e9233bdd3ed0fc9d42abcfbdb9",
     EXCHANGE: "0xf7d3e65fc7a97d69d311d4bc514e01f4bd7955a2",
-    FORWARDER: "0x7cc9dfcC209C4fb1d4714CDEbD5AA5933f0b36Aa",
+    FORWARDER: "0x18c01ce06af2ac1fbab1fd02698ff37c8c038f2f",
     // FORWARDER: "0x6E01f222da817D99e43c2758d8a53B92aEcD1e67",
   },
 }
