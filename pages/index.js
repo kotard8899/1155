@@ -198,7 +198,7 @@ export default function Home() {
         values: [{values.map(e => e + ",")}]
       </div>
       <div>
-        <input type="text" placeholder="賣價" value={price} onChange={(e) => setFeeRecipientAddress(e.target.value)} />{' '}
+        <input type="text" placeholder="賣價" value={price} onChange={(e) => setPrice(e.target.value)} />{' '}
         price: {price}ether
       </div>
       <div>
