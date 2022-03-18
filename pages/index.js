@@ -51,6 +51,7 @@ export default function Home() {
       })
       .on("receipt", (receipt) => {
         console.log(receipt)
+        handleAsync()
       })
       .on("error", (error) => {
         console.log(error)
