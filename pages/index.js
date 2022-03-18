@@ -25,6 +25,7 @@ export default function Home() {
   const [proxy, setProxy] = useState("")
   const [erc20, setErc20] = useState("")
   const [is721, setIs721] = useState(false)
+  const [exchange, setExchange] = useState("")
   const { accounts, provider, connected } = useW3Pocket()
   const account = accounts[0]
   const web3 = new Web3(provider)
@@ -95,7 +96,7 @@ export default function Home() {
       takerAssetAmount: (web3.utils.toWei(price.toString(), "ether") * (1 - makerFee / 100)).toString(),
       takerAssetData: erc20Data,
       makerAddress: account,
-      exchangeAddress: process.env.EXCHANGE,
+      exchangeAddress: exchange,
       salt,
       expirationTimeSeconds,
       feeRecipientAddress: feeRecipientAddress,
@@ -104,6 +105,7 @@ export default function Home() {
       makerFee: "0",
       takerFee: (web3.utils.toWei(price.toString(), "ether") * (makerFee / 100)).toString(),
     }
+    console.log(order)
 
     const zeroXProvider = await import("@0x/subproviders").then(
       ({ MetamaskSubprovider }) => new MetamaskSubprovider(provider))
@@ -188,6 +190,10 @@ export default function Home() {
       <div>
         <input type="text" placeholder="token address" value={address1155} onChange={(e) => setAddress1155(e.target.value)} />{' '}
         contractAddress: {address1155}
+      </div>
+      <div>
+        <input type="text" placeholder="exchange address" value={exchange} onChange={(e) => setExchange(e.target.value)} />{' '}
+        exchangeAddress: {exchange}
       </div>
       <div>
         <input type="text" placeholder="id,id,id" value={ids} onChange={handleIds} />{' '}
