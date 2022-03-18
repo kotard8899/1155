@@ -22,7 +22,7 @@ export default function Home() {
   const [feeRecipientAddress, setFeeRecipientAddress] = useState("0x7ebb6000feA30E11683A896cB745A5D51DdEEc6F")
   const [makerFee, setMakerFee] = useState(2.5)
   const [price, setPrice] = useState(0.1)
-  const [proxy, setProxy] = useState("")
+  const [proxy, setProxy] = useState("0x18c01ce06af2ac1fbab1fd02698ff37c8c038f2f")
   const [erc20, setErc20] = useState("")
   const [is721, setIs721] = useState(false)
   const { accounts, provider, connected } = useW3Pocket()
