@@ -8,12 +8,13 @@ import { BigNumber } from "@ethersproject/bignumber"
 import { Zero, One, AddressZero } from "@ethersproject/constants"
 import Web3 from "web3"
 import ABI from "../public/ABI.json"
+import ABI721 from "../public/ABI721.json"
 import fABI from "../public/fABI.json"
 import axios from "axios"
 
 export default function Home() {
   const [isApproved, setIsApproved] = useState(false)
-  const [address1155, setAddress1155] = useState("0x5ca26b7a7096ebbe9981aa8ceb526ed39b93e1ba")
+  const [address1155, setAddress1155] = useState("")
   const [ids, setIds] = useState([])
   const [values, setValues] = useState([])
   const [order, setOrder] = useState({})
@@ -21,26 +22,29 @@ export default function Home() {
   const [feeRecipientAddress, setFeeRecipientAddress] = useState("0x7ebb6000feA30E11683A896cB745A5D51DdEEc6F")
   const [makerFee, setMakerFee] = useState(2.5)
   const [price, setPrice] = useState(0.1)
+  const [proxy, setProxy] = useState("")
+  const [erc20, setErc20] = useState("")
+  const [is721, setIs721] = useState(false)
   const { accounts, provider, connected } = useW3Pocket()
   const account = accounts[0]
   const web3 = new Web3(provider)
   // const a1155 = "0xb462512ad8f6b795b551749Bf6d25Dd382D9bd64"
   // const a1155 = "0xcb14eca89ad5d6af203f19c68bdeced6a4d00655"
   // const a1155 = "0x5ca26b7a7096ebbe9981aa8ceb526ed39b93e1ba" // new
-  const contract = address1155 && new web3.eth.Contract(ABI, address1155)
+  const contract = address1155 && is721 ? new web3.eth.Contract(ABI721, address1155) : new web3.eth.Contract(ABI, address1155)
 
   useEffect(() => {
     account && address1155 && handleAsync()
   }, [account, address1155])
 
   const handleAsync = async () => {
-    const isApproved = await contract.methods.isApprovedForAll(account, process.env.ERC1155PROXY).call()
+    const isApproved = await contract.methods.isApprovedForAll(account, proxy).call()
     setIsApproved(isApproved)
   }
 
   const handleApprove = () => {
     contract.methods
-      .setApprovalForAll(process.env.ERC1155PROXY, true)
+      .setApprovalForAll(proxy, true)
       .send({ from: account })
       .on("transactionHash", (hash) => {
         console.log(hash)
@@ -63,17 +67,22 @@ export default function Home() {
     const { ecSignOrderAsync, convertECSignatureToSignatureHex } = signatureUtils
     const _ids = ids.map(e => BigNumber.from(e))
     const _values = values.map(e => BigNumber.from(e))
-
-    const erc1155Data = assetDataUtils.encodeERC1155AssetData(
-      address1155,
-      _ids,
-      _values,
-      "0x",
-    )
-      
-    const erc20Data = assetDataUtils.encodeERC20AssetData("0xc778417e063141139fce010982780140aa0cd5ab")
-    //0xf7d3e65fc7a97d69d311d4bc514e01f4bd7955a2
-    // 0xf47261b0000000000000000000000000c778417e063141139fce010982780140aa0cd5ab
+    let erc1155Data
+    if (!is721) {
+      erc1155Data = assetDataUtils.encodeERC1155AssetData(
+        address1155,
+        _ids,
+        _values,
+        "0x",
+      )
+    } else {
+      erc1155Data = assetDataUtils.encodeERC721AssetData(
+        address1155,
+        _ids[0]
+      )
+    }
+    // const erc20Data = assetDataUtils.encodeERC20AssetData("0xc778417e063141139fce010982780140aa0cd5ab")
+    const erc20Data = assetDataUtils.encodeERC20AssetData(erc20)
     const ts = Date.now()
     const salt = ts.toString()
 
@@ -102,17 +111,16 @@ export default function Home() {
       order,
       account,
     )
-    setSign(signature)
-    setOrder(order)
+    // const orderHash = orderHashUtils.getOrderHashHex(order)
     // const so = order
     // so.signature = signature
-
+    // so.orderHash = orderHash
+    // console.log(so)
     // const cso = convertECSignatureToSignatureHex(so)
-    // const r = await axios.post("https://cors-anywhere.herokuapp.com/https://api.rinkeby.dex.lootex.dev/v2/orders", {
-    //   order: cso,
-    //   chainId: 4
-    // })
+    // const r = await axios.post("https://api.rinkeby.dex.lootex.io/v2/orders?chainId=4",so)
     // console.log(r)
+    setSign(signature)
+    setOrder(order)
   }
 
   const fillOrder = () => {
@@ -165,12 +173,24 @@ export default function Home() {
             </button> : ""
       }
       <div>
-        <input type="text" placeholder="erc1155 address" value={address1155} onChange={(e) => setAddress1155(e.target.value)} />{' '}
+        <input type="text" value={is721} onChange={(e) => setIs721(e.target.value)} />{' '}
+        is721?: {is721}
+      </div>
+      <div>
+        <input type="text" placeholder="erc20Address" value={erc20} onChange={(e) => setErc20(e.target.value)} />{' '}
+        erc20Address: {erc20}
+      </div>
+      <div>
+        <input type="text" placeholder="proxy" value={proxy} onChange={(e) => setProxy(e.target.value)} />{' '}
+        proxy: {proxy} (erc721proxy || erc1155proxy)
+      </div>
+      <div>
+        <input type="text" placeholder="token address" value={address1155} onChange={(e) => setAddress1155(e.target.value)} />{' '}
         contractAddress: {address1155}
       </div>
       <div>
         <input type="text" placeholder="id,id,id" value={ids} onChange={handleIds} />{' '}
-        ids: [{ids.map(e => e + ",")}]
+        ids: [{ids.map(e => e + ",")}] (if is erc721 then input one id and dont need value)
       </div>
       <div>
         <input type="text" placeholder="value,value,value" value={values} onChange={handleValues} />{' '}
